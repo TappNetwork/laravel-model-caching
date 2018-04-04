@@ -1,6 +1,7 @@
 <?php namespace GeneaLabs\LaravelModelCaching\Traits;
 
 use GeneaLabs\LaravelModelCaching\CacheKey;
+use GeneaLabs\LaravelModelCaching\HashedCacheKey;
 use GeneaLabs\LaravelModelCaching\CacheTags;
 use Illuminate\Cache\TaggableStore;
 use Illuminate\Database\Eloquent\Model;
@@ -70,6 +71,11 @@ trait Caching
         $eagerLoad = $this->eagerLoad ?? [];
         $model = $this->model ?? $this;
         $query = $this->query ?? app(Builder::class);
+
+        if (config('cache.hash_model_cache', false)) {
+            return (new HashedCacheKey($eagerLoad, $model, $query))
+                ->make($columns, $idColumn, $keyDifferentiator);
+        }
 
         return (new CacheKey($eagerLoad, $model, $query))
             ->make($columns, $idColumn, $keyDifferentiator);
